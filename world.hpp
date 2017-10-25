@@ -39,9 +39,11 @@ class UnitInstance
       Point3D get_position();
       double get_rotation();
 
-      void action_run_forward();       ///< makes the unit move forward with collisions
+      void action_run_forward();       ///< Makes the unit move forward with collisions.
       void action_turn(bool right);
-      void action_attack(UnitInstance *enemy);
+      void action_attack(double distance=0.0);  ///< Performs attack forward (distance only has effect for ranged attack type).
+
+      bool can_attack();               ///< Check if cooldown allows attack to be performed;
 
     protected:
       Point3D position;
@@ -57,6 +59,8 @@ class UnitInstance
       Battlefield *battlefield;
       Engine *engine;
       Frontend *frontend;
+
+      double attack_cooldown;
 
       bool action_run_performed;      ///< whether run action was performed in this cycle
       bool action_turn_performed;

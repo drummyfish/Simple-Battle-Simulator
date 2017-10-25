@@ -9,7 +9,7 @@ UnitKind::UnitKind()
   {
     this->health_max = 100;
     this->attack = 1;
-    this->attack_speed = 1.0;
+    this->attack_speed = 0.3;
     this->movement_speed = 5.0;
     this->rotation_speed = 1.0;
     this->radius = 1.0;
@@ -20,6 +20,8 @@ void UnitInstance::update(double dt)
   {
     this->current_dt = dt;
 
+    this->attack_cooldown -= dt;
+
     this->position.z = this->frontend->get_terrain_height(this->position.x,this->position.y);
     
     this->action_run_performed = false;
@@ -29,13 +31,13 @@ void UnitInstance::update(double dt)
     this->ai->update(dt);
     this->ai->act();
 
-    if ( !this->action_run_performed && !this->action_turn_performed && !this->action_attack_performed)
+    if ( !this->action_run_performed && !this->action_turn_performed && !this->action_attack_performed && this->can_attack() )
       this->frontend->set_unit_node_animation(this->node_handle,ANIMATION_IDLE);
   }
 
 void UnitInstance::action_run_forward()
   {
-    if (this->action_run_performed)
+    if (this->action_run_performed || this->action_attack_performed)
       return;
 
     double distance = this->current_dt * this->kind->movement_speed;
@@ -64,12 +66,21 @@ void UnitInstance::action_turn(bool right)
     this->action_turn_performed = true;
   }
 
-void UnitInstance::action_attack(UnitInstance *enemy)
+void UnitInstance::action_attack(double distance)
   {
-    if (this->action_attack_performed)
+    if (this->action_attack_performed || this->action_run_performed || !this->can_attack())
       return;
 
+    this->frontend->set_unit_node_animation(this->node_handle,ANIMATION_ATTACK);
+
+    this->attack_cooldown = 1.0 / this->kind->attack_speed;
+
     this->action_attack_performed = true;
+  }
+
+bool UnitInstance::can_attack()
+  {
+    return this->attack_cooldown <= 0.0;
   }
 
 UnitInstance::UnitInstance(UnitKind *kind, Battlefield *battlefield)
@@ -81,6 +92,8 @@ UnitInstance::UnitInstance(UnitKind *kind, Battlefield *battlefield)
     this->rotation = 0;
     this->health_current = this->kind->health_max;
     this->team = 0;
+
+    this->attack_cooldown = -1.0;
 
     this->battlefield = battlefield;
     this->engine = battlefield->get_engine();
@@ -187,8 +200,6 @@ void Battlefield::update(double dt)
   {
     for (int i = 0; i < (int) this->units.size(); i++)
       this->units[i]->update(dt);
-
-this->debug_print_grid();
   }
 
 void Battlefield::unit_transitions_grid_cells(UnitInstance *unit_instance, int x_from, int y_from, int x_to, int y_to)

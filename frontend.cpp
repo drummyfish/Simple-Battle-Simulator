@@ -23,6 +23,10 @@ Frontend::Frontend()
     this->irr_scene = this->irr_device->getSceneManager();
     this->irr_gui = this->irr_device->getGUIEnvironment();
 
+    this->attack_end_callback = new AttackAnimationEndCallback(
+      ANIMATION_IDLE * Frontend::UNIT_ANIMATION_FRAMES,
+      (ANIMATION_IDLE + 1) * Frontend::UNIT_ANIMATION_FRAMES - 2);
+
     this->reset_scene();      
   }
 
@@ -45,6 +49,7 @@ void Frontend::reset_scene()
     this->light_node = this->irr_scene->addLightSceneNode();
 
     this->light_node->setPosition(vector3df(0,200,0));
+    this->light_node->setRadius(2000.0);
 
     this->camera->setPosition(vector3df(-119.793,100.996,-40.3278));
     this->camera->setRotation(vector3df(27.5347,55.3319,0));
@@ -72,12 +77,26 @@ int Frontend::create_unit_node(UnitInstance *unit_instance)
 
 void Frontend::set_unit_node_animation(int node_handle, UnitAnimation animation)
   {
-    if (this->unit_nodes[node_handle].animation == animation)
+    if (animation != ANIMATION_ATTACK && this->unit_nodes[node_handle].animation == animation)
       return;
 
-    this->unit_nodes[node_handle].animation = animation;
+    NodeUnitPair *pair = &(this->unit_nodes[node_handle]);
+
+    pair->animation = animation;
+
     int start = animation * Frontend::UNIT_ANIMATION_FRAMES;
-    this->unit_nodes[node_handle].node->setFrameLoop(start, start + Frontend::UNIT_ANIMATION_FRAMES - 2);
+
+    pair->node->setFrameLoop(start, start + Frontend::UNIT_ANIMATION_FRAMES - 2);
+
+    if (animation == ANIMATION_ATTACK)
+      {
+        pair->node->setLoopMode(false);
+        pair->node->setAnimationEndCallback(this->attack_end_callback);
+      }
+    else
+      {
+        pair->node->setLoopMode(true);
+      }
   }
 
 void Frontend::set_engine(Engine *engine)
@@ -122,6 +141,7 @@ void Frontend::run()
 
 Frontend::~Frontend()
   {
+    delete this->attack_end_callback;
     this->irr_device->drop();
   }
 

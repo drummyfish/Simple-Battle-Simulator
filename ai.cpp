@@ -33,8 +33,10 @@ void TestAI::act()
         this->timer = (rand() % 2000) / 1000.0;
       }
 
-    if (r < 4)
+    if (r < 3)
       this->unit_instance->action_run_forward();
+    else if (r < 6)
+      this->unit_instance->action_attack();
 
     if (r > 7)
       this->unit_instance->action_turn(r > 8);

@@ -30,6 +30,27 @@ typedef enum
     ANIMATION_DIE
   } UnitAnimation;
 
+class AttackAnimationEndCallback: public IAnimationEndCallBack  ///< Helper to set the animation to idle when the attack ends.
+  {
+    public:
+      AttackAnimationEndCallback(int start_frame, int end_frame): IAnimationEndCallBack()
+        {
+          this->start_frame = start_frame;
+          this->end_frame = end_frame;
+        }
+
+      virtual void OnAnimationEnd(IAnimatedMeshSceneNode *node)
+        {
+          node->setFrameLoop(this->start_frame,this->end_frame);
+          node->setLoopMode(true);
+          node->setAnimationEndCallback(NULL);
+        }
+
+    protected:
+      int start_frame;
+      int end_frame;
+  };
+
 class Frontend
   {
     public:
@@ -67,6 +88,8 @@ class Frontend
       ILightSceneNode *light_node;
 
       std::vector<NodeUnitPair> unit_nodes;
+
+      AttackAnimationEndCallback *attack_end_callback;
 
       Engine *engine;
       int previous_time;
