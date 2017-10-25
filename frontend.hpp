@@ -8,8 +8,7 @@ class UnitInstance;
 #define PRINT_CAMERA 0
 
 #define print_vector3d(v) std::cout << (v).X << " " << (v).Y << " " << (v).Z << std::endl
-
-#define point3d_to_vector3d(p) vector3df(p.x,p.z,p.y)        // also transforms from game space (Z up) into irrlicht space (Y up)
+#define point3d_to_vector3d(p) vector3df(p.y,p.z,p.x)        // also transforms from game space (Z up) into irrlicht space (Y up)
 
 class Engine;
 

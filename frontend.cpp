@@ -87,7 +87,7 @@ void Frontend::set_engine(Engine *engine)
 
 double Frontend::get_terrain_height(double x, double y)
   {
-    return this->terrain_node->getHeight(x,y);
+    return this->terrain_node->getHeight(y,x);
   }
 
 void Frontend::run()
@@ -105,7 +105,7 @@ void Frontend::run()
         for (int i = 0; i < (int) this->unit_nodes.size(); i++)
           {
             this->unit_nodes[i].node->setPosition(point3d_to_vector3d(this->unit_nodes[i].unit_instance->get_position()));
-            this->unit_nodes[i].node->setRotation(vector3df(  0.0,this->unit_nodes[i].unit_instance->get_rotation() - 90.0,0.0  ));
+            this->unit_nodes[i].node->setRotation(vector3df(  0.0,-1 * this->unit_nodes[i].unit_instance->get_rotation(),0.0  ));
           }
 
         int current_time = this->irr_device->getTimer()->getTime();

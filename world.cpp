@@ -76,6 +76,8 @@ UnitInstance::UnitInstance(UnitKind *kind, Battlefield *battlefield)
   {
     this->kind = kind;
     this->position = Point3D(0,0,0);
+    this->grid_x = -1;                // -1 will force update
+    this->grid_y = -1;
     this->rotation = 0;
     this->health_current = this->kind->health_max;
     this->team = 0;
@@ -100,7 +102,16 @@ UnitInstance::~UnitInstance()
 
 void UnitInstance::set_position(Point3D new_position)
   {
+    int previous_grid_x = this->grid_x;
+    int previous_grid_y = this->grid_y;
+
     this->position = new_position;
+
+    this->grid_x = this->position.x / SUBDIVISION_CELLS_X;
+    this->grid_y = this->position.y / SUBDIVISION_CELLS_Y;
+
+    if (this->grid_x != previous_grid_x || this->grid_y != previous_grid_y)
+      this->battlefield->unit_transitions_grid_cells(this,previous_grid_x,previous_grid_y,this->grid_x,this->grid_y); 
 
     this->position.x = saturate(this->position.x,0,Battlefield::SIZE_X);
     this->position.y = saturate(this->position.y,0,Battlefield::SIZE_Y);
@@ -159,9 +170,41 @@ UnitKind *Battlefield::get_last_unit_kind()
     return &(this->unit_kinds.back());
   }
 
+void Battlefield::debug_print_grid()
+  {
+    for (int y = 0; y < SUBDIVISION_CELLS_Y; y++)
+      {
+        for (int x = 0; x < SUBDIVISION_CELLS_X; x++)
+          std::cout << this->grid[x][y].size() << " ";
+
+        std::cout << "\n";
+      }
+
+    std::cout << "-----------------" << std::endl;
+  }
+
 void Battlefield::update(double dt)
   {
     for (int i = 0; i < (int) this->units.size(); i++)
       this->units[i]->update(dt);
+
+this->debug_print_grid();
+  }
+
+void Battlefield::unit_transitions_grid_cells(UnitInstance *unit_instance, int x_from, int y_from, int x_to, int y_to)
+  {
+    if (x_from >= 0 && y_from >= 0)
+      {
+        std::vector<UnitInstance *> *cell = &(this->grid[x_from][y_from]);
+
+        for (int i = 0; i < cell->size(); i++)
+          if ( (*cell)[i] == unit_instance )
+            {
+              cell->erase(cell->begin() + i);
+              break;
+            }
+      }
+
+    this->grid[x_to][y_to].push_back(unit_instance);
   }
 

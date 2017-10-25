@@ -4,6 +4,9 @@
 #include "general.hpp"
 #include "frontend.hpp"
 
+#define SUBDIVISION_CELLS_X 32
+#define SUBDIVISION_CELLS_Y 32
+
 class Battlefield;
 class AI;
 
@@ -42,6 +45,9 @@ class UnitInstance
 
     protected:
       Point3D position;
+      int grid_x;
+      int grid_y;
+
       double rotation;       ///< in degrees
       UnitKind *kind;
       int health_current;
@@ -71,12 +77,19 @@ class Battlefield
       Engine *get_engine();
       void update(double dt);
 
+      /// Unit instances have to call this to keep the grid updated.
+      void unit_transitions_grid_cells(UnitInstance *unit_instance, int x_from, int y_from, int x_to, int y_to); 
+
       static const double SIZE_X;
       static const double SIZE_Y;
     protected:
       std::vector<UnitKind> unit_kinds;
       std::vector<UnitInstance *> units;
       Engine *engine;
+
+      std::vector<UnitInstance *> grid[SUBDIVISION_CELLS_X][SUBDIVISION_CELLS_Y];    ///< Battlefield subdivision to accelerate collisions etc.
+
+      void debug_print_grid();
   };
 
 #endif
