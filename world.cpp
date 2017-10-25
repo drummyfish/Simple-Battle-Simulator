@@ -10,7 +10,7 @@ UnitKind::UnitKind()
     this->health_max = 100;
     this->attack = 1;
     this->attack_speed = 1.0;
-    this->movement_speed = 1.0;
+    this->movement_speed = 5.0;
     this->rotation_speed = 1.0;
     this->radius = 1.0;
     this->height = 1.0;
@@ -34,6 +34,15 @@ void UnitInstance::action_run_forward()
   {
     if (this->action_run_performed)
       return;
+
+    double distance = this->current_dt * this->kind->movement_speed;
+
+    this->set_position(Point3D(
+      this->position.x + distance * sin(deg_to_rad(this->rotation)),
+      this->position.y + distance * cos(deg_to_rad(this->rotation)),
+      this->position.z));
+
+    this->action_run_performed = true;
   }
 
 void UnitInstance::action_turn(bool right)
@@ -41,15 +50,19 @@ void UnitInstance::action_turn(bool right)
     if (this->action_turn_performed)
       return;
 
-    double sign = right ? 1.0 : 0.0;
+    double sign = right ? 1.0 : -1.0;
 
-    this->rotation += sign * this->current_dt * this->kind->rotation_speed * 360.0; 
+    this->rotation += sign * this->current_dt * this->kind->rotation_speed * 360.0;
+
+    this->action_turn_performed = true;
   }
 
 void UnitInstance::action_attack(UnitInstance *enemy)
   {
     if (this->action_attack_performed)
       return;
+
+    this->action_attack_performed = true;
   }
 
 UnitInstance::UnitInstance(UnitKind *kind, Battlefield *battlefield)
@@ -81,6 +94,9 @@ UnitInstance::~UnitInstance()
 void UnitInstance::set_position(Point3D new_position)
   {
     this->position = new_position;
+
+    this->position.x = saturate(this->position.x,0,Battlefield::SIZE_X);
+    this->position.y = saturate(this->position.y,0,Battlefield::SIZE_Y);
   }
 
 Point3D UnitInstance::get_position()

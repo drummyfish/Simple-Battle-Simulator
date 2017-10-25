@@ -1,6 +1,6 @@
 COMPILER=c++
 C_FLAGS=-std=c++11 -Wall -Wextra -pedantic
-L_FLAGS=-lIrrlicht
+L_FLAGS=-lIrrlicht -lm
 
 all: main.o general.o world.o frontend.o engine.o ai.o
 	$(COMPILER) $(C_FLAGS) general.o world.o frontend.o engine.o main.o ai.o -o game $(L_FLAGS)
