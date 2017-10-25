@@ -16,13 +16,25 @@ void AI::update(double dt)
 
 TestAI::TestAI(UnitInstance *unit_instance): AI(unit_instance)
   {
+    this->timer = 1.0;
+    this->r = 0;
+  }
+
+void TestAI::update(double dt)
+  {
+    this->timer -= dt;
   }
 
 void TestAI::act()
   {
-    this->unit_instance->action_run_forward();
+    if (this->timer < 0.0)
+      {
+        this->r = rand() % 10;
+        this->timer = (rand() % 2000) / 1000.0;
+      }
 
-    int r = rand() % 10;
+    if (r < 2)
+      this->unit_instance->action_run_forward();
 
     if (r > 5)
       this->unit_instance->action_turn(r > 7);

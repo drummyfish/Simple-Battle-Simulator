@@ -22,6 +22,11 @@ class TestAI : public AI
       TestAI(UnitInstance *unit_instance);
 
       virtual void act() override;  
+      virtual void update(double dt);
+
+    protected:
+      double timer;
+      int r;
   };
 
 #endif

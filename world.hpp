@@ -36,7 +36,7 @@ class UnitInstance
       Point3D get_position();
       double get_rotation();
 
-      void action_run_forward();
+      void action_run_forward();       ///< makes the unit move forward with collisions
       void action_turn(bool right);
       void action_attack(UnitInstance *enemy);
 

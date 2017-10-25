@@ -28,6 +28,9 @@ void UnitInstance::update(double dt)
 
     this->ai->update(dt);
     this->ai->act();
+
+    if ( !this->action_run_performed && !this->action_turn_performed && !this->action_attack_performed)
+      this->frontend->set_unit_node_animation(this->node_handle,ANIMATION_IDLE);
   }
 
 void UnitInstance::action_run_forward()
@@ -42,6 +45,8 @@ void UnitInstance::action_run_forward()
       this->position.y + distance * cos(deg_to_rad(this->rotation)),
       this->position.z));
 
+    this->frontend->set_unit_node_animation(this->node_handle,ANIMATION_RUN);
+
     this->action_run_performed = true;
   }
 
@@ -53,6 +58,8 @@ void UnitInstance::action_turn(bool right)
     double sign = right ? 1.0 : -1.0;
 
     this->rotation += sign * this->current_dt * this->kind->rotation_speed * 360.0;
+
+    this->frontend->set_unit_node_animation(this->node_handle,ANIMATION_RUN);
 
     this->action_turn_performed = true;
   }

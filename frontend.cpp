@@ -3,6 +3,8 @@
 #include "engine.hpp"
 #include "world.hpp"
 
+const int Frontend::UNIT_ANIMATION_FRAMES = 32;
+
 Frontend::Frontend()
   {
     terminal_print("initializing frontend...");
@@ -37,7 +39,7 @@ void Frontend::reset_scene()
       };
 
     this->terrain_node = this->irr_scene->addTerrainSceneNode("heightmap.png",0,-1,vector3df(0,0,0),vector3df(0,0,0),
-      vector3df(Battlefield::SIZE_X / 128.0,1,Battlefield::SIZE_Y / 128.0)); 
+      vector3df(Battlefield::SIZE_X / 128.0,0.2,Battlefield::SIZE_Y / 128.0)); 
 
     this->camera = this->irr_scene->addCameraSceneNodeFPS(0,100,0.5,-1,controls,sizeof(controls) / sizeof(SKeyMap),false,0);
     this->light_node = this->irr_scene->addLightSceneNode();
@@ -52,15 +54,33 @@ int Frontend::create_unit_node(UnitInstance *unit_instance)
   {
     NodeUnitPair pair;
 
-    pair.node = this->irr_scene->addCubeSceneNode();
+    pair.node = this->irr_scene->addAnimatedMeshSceneNode(this->irr_scene->getMesh("testunit.ms3d"));
+    pair.node->setScale(vector3df(4.0,4.0,4.0));
+    
+    pair.animation = ANIMATION_IDLE;
+
     pair.unit_instance = unit_instance;
 
     this->unit_nodes.push_back(pair);
 
-    return this->unit_nodes.size() - 1;
+    int handle = this->unit_nodes.size() - 1; 
+
+    this->set_unit_node_animation(handle,ANIMATION_IDLE);
+
+    return handle;
   }
 
-void Frontend::setEngine(Engine *engine)
+void Frontend::set_unit_node_animation(int node_handle, UnitAnimation animation)
+  {
+    if (this->unit_nodes[node_handle].animation == animation)
+      return;
+
+    this->unit_nodes[node_handle].animation = animation;
+    int start = animation * Frontend::UNIT_ANIMATION_FRAMES;
+    this->unit_nodes[node_handle].node->setFrameLoop(start, start + Frontend::UNIT_ANIMATION_FRAMES - 2);
+  }
+
+void Frontend::set_engine(Engine *engine)
   {
     this->engine = engine;
   }
@@ -85,7 +105,7 @@ void Frontend::run()
         for (int i = 0; i < (int) this->unit_nodes.size(); i++)
           {
             this->unit_nodes[i].node->setPosition(point3d_to_vector3d(this->unit_nodes[i].unit_instance->get_position()));
-            this->unit_nodes[i].node->setRotation(vector3df(  0.0,this->unit_nodes[i].unit_instance->get_rotation(),0.0  ));
+            this->unit_nodes[i].node->setRotation(vector3df(  0.0,this->unit_nodes[i].unit_instance->get_rotation() - 90.0,0.0  ));
           }
 
         int current_time = this->irr_device->getTimer()->getTime();

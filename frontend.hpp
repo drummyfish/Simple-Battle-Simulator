@@ -23,6 +23,14 @@ using namespace std;
 
 /// \brief Handle presentation (graphics, sound, ...) and input and provide abstract interface.
 
+typedef enum
+  {
+    ANIMATION_IDLE=0,
+    ANIMATION_RUN,
+    ANIMATION_ATTACK,
+    ANIMATION_DIE
+  } UnitAnimation;
+
 class Frontend
   {
     public:
@@ -31,19 +39,23 @@ class Frontend
 
       void run();
 
-      void setEngine(Engine *engine);
+      void set_engine(Engine *engine);
 
       void reset_scene();
 
       double get_terrain_height(double x, double y);
 
       int create_unit_node(UnitInstance *unit_instance);     ///< Create a new node for unit, return the node handle for the unit to keep.
+      void set_unit_node_animation(int node_handle, UnitAnimation animation);
 
     protected:
+      const static int UNIT_ANIMATION_FRAMES;
+
       typedef struct
         {
-          IMeshSceneNode *node;
+          IAnimatedMeshSceneNode *node;
           UnitInstance *unit_instance;
+          UnitAnimation animation;
         } NodeUnitPair;
 
       IrrlichtDevice *irr_device;

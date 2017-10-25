@@ -5,7 +5,7 @@ Engine::Engine(Frontend *frontend)
   {
     terminal_print("initializing engine...");
     this->frontend = frontend;
-    frontend->setEngine(this);
+    frontend->set_engine(this);
 
     this->battlefield = NULL;
 
@@ -20,7 +20,9 @@ Engine::Engine(Frontend *frontend)
 
     for (int y = 0; y < 10; y++)
       for (int x = 0; x < 5; x++)
-        this->battlefield->create_unit_instance(unit_kind,Point3D(x * 20.0,y * 20.0,0.0),0.0);
+        {
+          this->battlefield->create_unit_instance(unit_kind,Point3D(x * 20.0,y * 20.0,0.0),0.0);
+        }
   }
 
 void Engine::update_world(double dt)
