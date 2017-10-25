@@ -1,5 +1,6 @@
 #include "world.hpp"
 #include "engine.hpp"
+#include "ai.hpp"
 
 const double Battlefield::SIZE_X = 1000.0;
 const double Battlefield::SIZE_Y = 1000.0;
@@ -10,13 +11,45 @@ UnitKind::UnitKind()
     this->attack = 1;
     this->attack_speed = 1.0;
     this->movement_speed = 1.0;
+    this->rotation_speed = 1.0;
     this->radius = 1.0;
     this->height = 1.0;
   }
 
 void UnitInstance::update(double dt)
   {
+    this->current_dt = dt;
+
     this->position.z = this->frontend->get_terrain_height(this->position.x,this->position.y);
+    
+    this->action_run_performed = false;
+    this->action_turn_performed = false;
+    this->action_attack_performed = false;
+
+    this->ai->update(dt);
+    this->ai->act();
+  }
+
+void UnitInstance::action_run_forward()
+  {
+    if (this->action_run_performed)
+      return;
+  }
+
+void UnitInstance::action_turn(bool right)
+  {
+    if (this->action_turn_performed)
+      return;
+
+    double sign = right ? 1.0 : 0.0;
+
+    this->rotation += sign * this->current_dt * this->kind->rotation_speed * 360.0; 
+  }
+
+void UnitInstance::action_attack(UnitInstance *enemy)
+  {
+    if (this->action_attack_performed)
+      return;
   }
 
 UnitInstance::UnitInstance(UnitKind *kind, Battlefield *battlefield)
@@ -32,6 +65,17 @@ UnitInstance::UnitInstance(UnitKind *kind, Battlefield *battlefield)
     this->frontend = this->engine->get_frontend();
 
     this->node_handle = this->frontend->create_unit_node(this);
+
+    this->action_run_performed = false;
+    this->action_turn_performed = false;
+    this->action_attack_performed = false;
+
+    this->ai = new TestAI(this);
+  }
+
+UnitInstance::~UnitInstance()
+  {
+    delete this->ai;
   }
 
 void UnitInstance::set_position(Point3D new_position)

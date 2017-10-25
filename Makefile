@@ -1,9 +1,9 @@
 COMPILER=c++
-C_FLAGS=-Wall -Wextra -pedantic
+C_FLAGS=-std=c++11 -Wall -Wextra -pedantic
 L_FLAGS=-lIrrlicht
 
-all: main.o general.o world.o frontend.o engine.o
-	$(COMPILER) $(C_FLAGS) general.o world.o frontend.o engine.o main.o -o game $(L_FLAGS)
+all: main.o general.o world.o frontend.o engine.o ai.o
+	$(COMPILER) $(C_FLAGS) general.o world.o frontend.o engine.o main.o ai.o -o game $(L_FLAGS)
 
 main.o: main.cpp
 	$(COMPILER) $(C_FLAGS) main.cpp -c
@@ -19,4 +19,7 @@ frontend.o: frontend.cpp frontend.hpp
 
 engine.o: engine.cpp
 	$(COMPILER) $(C_FLAGS) engine.cpp -c
+
+ai.o: ai.cpp
+	$(COMPILER) $(C_FLAGS) ai.cpp -c
 

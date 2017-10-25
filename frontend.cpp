@@ -55,8 +55,6 @@ int Frontend::create_unit_node(UnitInstance *unit_instance)
     pair.node = this->irr_scene->addCubeSceneNode();
     pair.unit_instance = unit_instance;
 
-quick_print(unit_instance);
-
     this->unit_nodes.push_back(pair);
 
     return this->unit_nodes.size() - 1;
@@ -87,6 +85,7 @@ void Frontend::run()
         for (int i = 0; i < (int) this->unit_nodes.size(); i++)
           {
             this->unit_nodes[i].node->setPosition(point3d_to_vector3d(this->unit_nodes[i].unit_instance->get_position()));
+            this->unit_nodes[i].node->setRotation(vector3df(  0.0,this->unit_nodes[i].unit_instance->get_rotation(),0.0  ));
           }
 
         int current_time = this->irr_device->getTimer()->getTime();

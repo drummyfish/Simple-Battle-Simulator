@@ -5,6 +5,7 @@
 #include "frontend.hpp"
 
 class Battlefield;
+class AI;
 
 class UnitKind
   {
@@ -16,6 +17,7 @@ class UnitKind
       int attack;
       double attack_speed;    ///< in hits per second
       double movement_speed;
+      double rotation_speed;
       double radius;
       double height;
   };
@@ -24,6 +26,7 @@ class UnitInstance
   {
     public:
       UnitInstance(UnitKind *kind, Battlefield *battlefield);
+      ~UnitInstance();
 
       void set_position(Point3D new_position);
       void set_rotation(double new_rotation);
@@ -33,9 +36,13 @@ class UnitInstance
       Point3D get_position();
       double get_rotation();
 
+      void action_run_forward();
+      void action_turn(bool right);
+      void action_attack(UnitInstance *enemy);
+
     protected:
       Point3D position;
-      double rotation;
+      double rotation;       ///< in degrees
       UnitKind *kind;
       int health_current;
       int team;
@@ -44,6 +51,13 @@ class UnitInstance
       Battlefield *battlefield;
       Engine *engine;
       Frontend *frontend;
+
+      bool action_run_performed;      ///< whether run action was performed in this cycle
+      bool action_turn_performed;
+      bool action_attack_performed;
+
+      AI *ai;
+      double current_dt;
   };
 
 class Battlefield
