@@ -14,7 +14,7 @@ UnitKind::UnitKind()
     this->attack_speed = 0.3;
     this->movement_speed = 5.0;
     this->rotation_speed = 1.0;
-    this->radius = 3.5;
+    this->radius = 6.0;
     this->height = 1.0;
   }
 
@@ -143,11 +143,10 @@ void UnitInstance::set_position(Point3D new_position)
         if (another_unit != this)
           {
             Point3D to_this = this->position - another_unit->get_position();
-            double radius_sum = this->get_radius() + another_unit->get_radius();
-            double overlap = radius_sum - to_this.length();
+            double overlap = another_unit->get_radius() - to_this.length();
 
             if (overlap > 0.0)  // collision?
-              this->position = another_unit->get_position() + to_this.normalized() * (radius_sum + 0.001);
+              this->position = another_unit->get_position() + to_this.normalized() * (another_unit->get_radius() + 0.001);
           }
       }
 
