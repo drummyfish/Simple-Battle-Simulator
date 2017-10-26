@@ -35,6 +35,8 @@ void UnitInstance::update(double dt)
 
     if ( !this->action_run_performed && !this->action_turn_performed && !this->action_attack_performed && this->can_attack() )
       this->frontend->set_unit_node_animation(this->node_handle,ANIMATION_IDLE);
+
+    this->handle_collisions();
   }
 
 void UnitInstance::action_run_forward()
@@ -120,18 +122,10 @@ UnitInstance::~UnitInstance()
     delete this->ai;
   }
 
-void UnitInstance::set_position(Point3D new_position)
+void UnitInstance::handle_collisions()
   {
-    int previous_grid_x = this->grid_x;
-    int previous_grid_y = this->grid_y;
-
-    this->position = new_position;
-
-    this->grid_x = this->position.x / SUBDIVISION_CELLS_X;
-    this->grid_y = this->position.y / SUBDIVISION_CELLS_Y;
-
-    if (this->grid_x != previous_grid_x || this->grid_y != previous_grid_y)
-      this->battlefield->unit_transitions_grid_cells(this,previous_grid_x,previous_grid_y,this->grid_x,this->grid_y); 
+    bool collision_happened = false;
+    Point3D new_position;
 
     SubdivisionCell *cell = this->battlefield->get_cell(this->grid_x,this->grid_y);
     UnitInstance *another_unit;
@@ -146,9 +140,29 @@ void UnitInstance::set_position(Point3D new_position)
             double overlap = another_unit->get_radius() - to_this.length();
 
             if (overlap > 0.0)  // collision?
-              this->position = another_unit->get_position() + to_this.normalized() * (another_unit->get_radius() + 0.001);
+              {
+                collision_happened = true;
+                new_position = another_unit->get_position() + to_this.normalized() * (another_unit->get_radius() + 0.001);
+              }
           }
       }
+
+    if (collision_happened)
+      this->set_position(new_position);
+  }
+
+void UnitInstance::set_position(Point3D new_position)
+  {
+    int previous_grid_x = this->grid_x;
+    int previous_grid_y = this->grid_y;
+
+    this->position = new_position;
+
+    this->grid_x = saturate(this->position.x / SUBDIVISION_CELLS_X,0,SUBDIVISION_CELLS_X - 1);
+    this->grid_y = saturate(this->position.y / SUBDIVISION_CELLS_Y,0,SUBDIVISION_CELLS_Y - 1);
+
+    if (this->grid_x != previous_grid_x || this->grid_y != previous_grid_y)
+      this->battlefield->unit_transitions_grid_cells(this,previous_grid_x,previous_grid_y,this->grid_x,this->grid_y);
 
     this->position.x = saturate(this->position.x,0,Battlefield::SIZE_X);
     this->position.y = saturate(this->position.y,0,Battlefield::SIZE_Y);

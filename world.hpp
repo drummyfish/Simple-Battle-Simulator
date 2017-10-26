@@ -70,6 +70,7 @@ class UnitInstance
 
       AI *ai;
       double current_dt;
+      void handle_collisions();
   };
 
 typedef std::set<UnitInstance *> SubdivisionCell;
