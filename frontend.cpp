@@ -3,6 +3,8 @@
 #include "engine.hpp"
 #include "world.hpp"
 
+#define BASE_UNIT_SCALE 4
+
 const int Frontend::UNIT_ANIMATION_FRAMES = 32;
 
 Frontend::Frontend()
@@ -59,8 +61,12 @@ int Frontend::create_unit_node(UnitInstance *unit_instance)
   {
     NodeUnitPair pair;
 
-    pair.node = this->irr_scene->addAnimatedMeshSceneNode(this->irr_scene->getMesh("testunit.ms3d"));
-    pair.node->setScale(vector3df(4.0,4.0,4.0));
+    std::string model_filename = unit_instance->get_kind()->filename + ".ms3d";
+    pair.node = this->irr_scene->addAnimatedMeshSceneNode(this->irr_scene->getMesh(model_filename.c_str()));
+
+    double scale = BASE_UNIT_SCALE * unit_instance->get_kind()->model_scale;
+
+    pair.node->setScale(vector3df(scale,scale,scale));
     
     pair.animation = ANIMATION_IDLE;
 

@@ -16,12 +16,22 @@ Engine::Engine(Frontend *frontend)
     this->battlefield = new Battlefield(this);
 
     this->battlefield->create_unit_kind();
-    UnitKind *unit_kind = this->battlefield->get_last_unit_kind();
+    UnitKind *unit_kind = this->battlefield->get_unit_kind(0);
+    unit_kind->filename = "testunit";
+
+    this->battlefield->create_unit_kind();
+    UnitKind *unit_kind2 = this->battlefield->get_unit_kind(1);
+    unit_kind2->filename = "testunit";
+    unit_kind2->model_scale = 2.0;
+    unit_kind2->radius *= 2;
+
+    bool flag = false;
 
     for (int y = 0; y < 30; y++)
       for (int x = 0; x < 20; x++)
         {
-          this->battlefield->create_unit_instance(unit_kind,Point3D(x * 20 + 100,y * 20.0 + 100,0.0),0.0);
+          this->battlefield->create_unit_instance( flag ? unit_kind : unit_kind2 ,Point3D(x * 20 + 100,y * 20.0 + 100,0.0),0.0);
+          flag = !flag;
         }
   }
 

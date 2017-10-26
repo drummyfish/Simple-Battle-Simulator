@@ -23,6 +23,9 @@ class UnitKind
       double rotation_speed;
       double radius;
       double height;
+
+      std::string filename;
+      double model_scale;
   };
 
 class UnitInstance
@@ -38,6 +41,7 @@ class UnitInstance
 
       Point3D get_position();
       double get_rotation();
+      UnitKind *get_kind();
 
       void action_run_forward();       ///< Makes the unit move forward with collisions.
       void action_turn(bool right);
@@ -81,7 +85,7 @@ class Battlefield
       Battlefield(Engine *engine);
       ~Battlefield();
       void create_unit_kind();
-      UnitKind *get_last_unit_kind();
+      UnitKind *get_unit_kind(int index);
       void create_unit_instance(UnitKind *unit_kind, Point3D position, double rotation);
       Engine *get_engine();
       void update(double dt);
@@ -95,7 +99,7 @@ class Battlefield
       static const double CELL_SIZE_X;
       static const double CELL_SIZE_Y;
     protected:
-      std::vector<UnitKind> unit_kinds;
+      std::vector<UnitKind *> unit_kinds;
       std::vector<UnitInstance *> units;
       Engine *engine;
 

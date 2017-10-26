@@ -16,6 +16,13 @@ UnitKind::UnitKind()
     this->rotation_speed = 1.0;
     this->radius = 6.0;
     this->height = 1.0;
+    this->filename = "";
+    this->model_scale = 1.0;
+  }
+
+UnitKind *UnitInstance::get_kind()
+  {
+    return this->kind;
   }
 
 void UnitInstance::update(double dt)
@@ -195,8 +202,7 @@ Engine *Battlefield::get_engine()
 
 void Battlefield::create_unit_kind()
   {
-    UnitKind new_unit_kind;
-    this->unit_kinds.push_back(new_unit_kind);
+    this->unit_kinds.push_back(new UnitKind());
   }
 
 void Battlefield::create_unit_instance(UnitKind *unit_kind, Point3D position, double rotation)
@@ -211,14 +217,14 @@ Battlefield::~Battlefield()
   {
     for (int i = 0; i < (int) this->units.size(); i++)
       delete this->units[i];
+
+    for (int i = 0; i < (int) this->unit_kinds.size(); i++)
+      delete this->unit_kinds[i];
   }
 
-UnitKind *Battlefield::get_last_unit_kind()
+UnitKind *Battlefield::get_unit_kind(int index)
   {
-    if (this->unit_kinds.size() == 0)
-      return NULL;
-
-    return &(this->unit_kinds.back());
+    return this->unit_kinds[index];
   }
 
 void Battlefield::debug_print_grid()
