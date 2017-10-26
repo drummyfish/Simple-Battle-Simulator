@@ -4,6 +4,8 @@
 
 const double Battlefield::SIZE_X = 1000.0;
 const double Battlefield::SIZE_Y = 1000.0;
+const double Battlefield::CELL_SIZE_X = Battlefield::SIZE_X / SUBDIVISION_CELLS_X;
+const double Battlefield::CELL_SIZE_Y = Battlefield::SIZE_Y / SUBDIVISION_CELLS_Y;
 
 UnitKind::UnitKind()
   {
@@ -12,7 +14,7 @@ UnitKind::UnitKind()
     this->attack_speed = 0.3;
     this->movement_speed = 5.0;
     this->rotation_speed = 1.0;
-    this->radius = 1.0;
+    this->radius = 10.0;
     this->height = 1.0;
   }
 
@@ -81,6 +83,11 @@ void UnitInstance::action_attack(double distance)
 bool UnitInstance::can_attack()
   {
     return this->attack_cooldown <= 0.0;
+  }
+
+double UnitInstance::get_radius()
+  {
+    return this->kind->radius;
   }
 
 UnitInstance::UnitInstance(UnitKind *kind, Battlefield *battlefield)
@@ -200,22 +207,25 @@ void Battlefield::update(double dt)
   {
     for (int i = 0; i < (int) this->units.size(); i++)
       this->units[i]->update(dt);
+
+this->debug_print_grid();
+  }
+
+void Battlefield::update_grid_cell_neighbourhood(bool add, UnitInstance *unit_instance, int x, int y, int neighbour_size)
+  {
+    for (int j = max(0,y - neighbour_size); j <= min(SUBDIVISION_CELLS_Y - 1,y + neighbour_size); j++)
+      for (int i = max(0,x - neighbour_size); i <= min(SUBDIVISION_CELLS_X - 1,x + neighbour_size); i++)
+        if (add)
+          this->grid[i][j].insert(unit_instance);
+        else
+          this->grid[i][j].erase(unit_instance);
   }
 
 void Battlefield::unit_transitions_grid_cells(UnitInstance *unit_instance, int x_from, int y_from, int x_to, int y_to)
   {
-    if (x_from >= 0 && y_from >= 0)
-      {
-        std::vector<UnitInstance *> *cell = &(this->grid[x_from][y_from]);
+    int neighbour_size = ceil(unit_instance->get_radius() / min(Battlefield::CELL_SIZE_X,Battlefield::CELL_SIZE_Y));
 
-        for (int i = 0; i < cell->size(); i++)
-          if ( (*cell)[i] == unit_instance )
-            {
-              cell->erase(cell->begin() + i);
-              break;
-            }
-      }
-
-    this->grid[x_to][y_to].push_back(unit_instance);
+    this->update_grid_cell_neighbourhood(false,unit_instance,x_from,y_from,neighbour_size);  
+    this->update_grid_cell_neighbourhood(true,unit_instance,x_to,y_to,neighbour_size);
   }
 

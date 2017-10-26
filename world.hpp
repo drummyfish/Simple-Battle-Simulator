@@ -45,6 +45,8 @@ class UnitInstance
 
       bool can_attack();               ///< Check if cooldown allows attack to be performed;
 
+      double get_radius();
+
     protected:
       Point3D position;
       int grid_x;
@@ -86,13 +88,17 @@ class Battlefield
 
       static const double SIZE_X;
       static const double SIZE_Y;
+      static const double CELL_SIZE_X;
+      static const double CELL_SIZE_Y;
     protected:
       std::vector<UnitKind> unit_kinds;
       std::vector<UnitInstance *> units;
       Engine *engine;
 
-      std::vector<UnitInstance *> grid[SUBDIVISION_CELLS_X][SUBDIVISION_CELLS_Y];    ///< Battlefield subdivision to accelerate collisions etc.
+      std::set<UnitInstance *> grid[SUBDIVISION_CELLS_X][SUBDIVISION_CELLS_Y];     ///< Battlefield subdivision to accelerate collisions etc.
 
+      void remove_unit_from_cell(UnitInstance *unit_instance, int x, int y);       ///< Removes unit pointer from given single grid cell.
+      void update_grid_cell_neighbourhood(bool add, UnitInstance *unit_instance, int x, int y, int neighbour_size);
       void debug_print_grid();
   };
 
