@@ -72,6 +72,8 @@ class UnitInstance
       double current_dt;
   };
 
+typedef std::set<UnitInstance *> SubdivisionCell;
+
 class Battlefield
   {
     public:
@@ -85,6 +87,7 @@ class Battlefield
 
       /// Unit instances have to call this to keep the grid updated.
       void unit_transitions_grid_cells(UnitInstance *unit_instance, int x_from, int y_from, int x_to, int y_to); 
+      SubdivisionCell *get_cell(int x, int y);
 
       static const double SIZE_X;
       static const double SIZE_Y;
@@ -95,7 +98,7 @@ class Battlefield
       std::vector<UnitInstance *> units;
       Engine *engine;
 
-      std::set<UnitInstance *> grid[SUBDIVISION_CELLS_X][SUBDIVISION_CELLS_Y];     ///< Battlefield subdivision to accelerate collisions etc.
+      SubdivisionCell grid[SUBDIVISION_CELLS_X][SUBDIVISION_CELLS_Y];     ///< Battlefield subdivision to accelerate collisions etc.
 
       void remove_unit_from_cell(UnitInstance *unit_instance, int x, int y);       ///< Removes unit pointer from given single grid cell.
       void update_grid_cell_neighbourhood(bool add, UnitInstance *unit_instance, int x, int y, int neighbour_size);

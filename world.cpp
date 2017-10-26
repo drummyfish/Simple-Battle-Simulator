@@ -14,7 +14,7 @@ UnitKind::UnitKind()
     this->attack_speed = 0.3;
     this->movement_speed = 5.0;
     this->rotation_speed = 1.0;
-    this->radius = 10.0;
+    this->radius = 3.5;
     this->height = 1.0;
   }
 
@@ -133,6 +133,24 @@ void UnitInstance::set_position(Point3D new_position)
     if (this->grid_x != previous_grid_x || this->grid_y != previous_grid_y)
       this->battlefield->unit_transitions_grid_cells(this,previous_grid_x,previous_grid_y,this->grid_x,this->grid_y); 
 
+    SubdivisionCell *cell = this->battlefield->get_cell(this->grid_x,this->grid_y);
+    UnitInstance *another_unit;
+
+    for (std::set<UnitInstance *>::iterator it = cell->begin(); it != cell->end(); it++)
+      {
+        another_unit = *it;
+
+        if (another_unit != this)
+          {
+            Point3D to_this = this->position - another_unit->get_position();
+            double radius_sum = this->get_radius() + another_unit->get_radius();
+            double overlap = radius_sum - to_this.length();
+
+            if (overlap > 0.0)  // collision?
+              this->position = another_unit->get_position() + to_this.normalized() * (radius_sum + 0.001);
+          }
+      }
+
     this->position.x = saturate(this->position.x,0,Battlefield::SIZE_X);
     this->position.y = saturate(this->position.y,0,Battlefield::SIZE_Y);
   }
@@ -207,8 +225,6 @@ void Battlefield::update(double dt)
   {
     for (int i = 0; i < (int) this->units.size(); i++)
       this->units[i]->update(dt);
-
-this->debug_print_grid();
   }
 
 void Battlefield::update_grid_cell_neighbourhood(bool add, UnitInstance *unit_instance, int x, int y, int neighbour_size)
@@ -219,6 +235,11 @@ void Battlefield::update_grid_cell_neighbourhood(bool add, UnitInstance *unit_in
           this->grid[i][j].insert(unit_instance);
         else
           this->grid[i][j].erase(unit_instance);
+  }
+
+SubdivisionCell *Battlefield::get_cell(int x, int y)
+  {
+    return &(this->grid[x][y]);
   }
 
 void Battlefield::unit_transitions_grid_cells(UnitInstance *unit_instance, int x_from, int y_from, int x_to, int y_to)

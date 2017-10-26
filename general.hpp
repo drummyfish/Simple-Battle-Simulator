@@ -26,7 +26,14 @@ class Point3D
       double y;
       double z;
 
-    void print();
+      void print();
+      double distance(Point3D point);
+      double length();
+      Point3D normalized();
+      Point3D operator+(Point3D point);
+      Point3D operator-(Point3D point);
+      Point3D operator*(double val);
+      Point3D operator/(double val);
   };
 
 void terminal_print(std::string message);

@@ -18,8 +18,8 @@ Engine::Engine(Frontend *frontend)
     this->battlefield->create_unit_kind();
     UnitKind *unit_kind = this->battlefield->get_last_unit_kind();
 
-    for (int y = 0; y < 1; y++)
-      for (int x = 0; x < 1; x++)
+    for (int y = 0; y < 30; y++)
+      for (int x = 0; x < 20; x++)
         {
           this->battlefield->create_unit_instance(unit_kind,Point3D(x * 20 + 100,y * 20.0 + 100,0.0),0.0);
         }
